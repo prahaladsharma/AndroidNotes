@@ -1,0 +1,167 @@
+1. What’s the difference between an implicit and an explicit intent?
+Implicit Intents do not directly specify the Android components which should be called , it only specifies action to be performed.An Uri can be used with the implicit intent to specify data type.
+for example
+Intent intent = new Intent(ACTION_VIEW,Uri.parse("http://www.google.com");
+this will cause web browser to open a webpage .Android system searches for all components which are registered for the specific action and the data type.If many components are found then the user can select which component to use..
+Explicit intents are used in the application itself wherein one activity can switch to other activty...
+Example Intent intent = new Intent(this,Target.class);
+ this causes switching of activity from current context to the target activity. Explicit Intents can also be used to pass data to other activity using putExtra method and retrieved by target activity by getIntent().getExtras() methods...
+
+2. When should you use a Fragment, rather than an Activity?
+Activity is expensive. In Fragment, views and property states are separated - whenever a fragment is in backstack, its views will be destroyed. So you can stack much more Fragments than Activity.
+Backstack manipulation. With FragmentManager, it's easy to clear all the Fragments, insert more than on Fragments and etcs. But for Activity, it will be a nightmare to manipulate those stuff.
+A much predictable lifecycle. As long as the host Activity is not recycled. the Fragments in the backstack will not be recycled. So it's possible to use FragmentManager::getFragments() to find specific Fragment (not encouraged).
+
+3. You’re replacing one Fragment with another — how do you ensure that the user can return to the previous Fragment, by pressing the Back button?
+If the "Back" button is going to return the user to the previous Fragment, then you’ll need to save each Fragment transaction to the back stack, by calling addToBackStack() before you commit() that transaction.
+The developer definitely shouldn’t suggest creating a "Back" button specifically to handle navigating between fragments, but bonus points if they mention that you should never try to commit a FragmentTransaction after calling onSaveInstanceState(), as this can result in an exception.
+
+4. How would you create a multi-threaded Android app without using the Thread class?
+If you only need to override the run() method and no other Thread methods, then you should implement Runnable.
+
+5. What is a ThreadPool? And is it more effective than using several separate Threads?
+ThreadPool consists of a task queue and a group of worker threads, which allows it to run multiple parallel instances of a task. Using ThreadPool is more efficient than having multiple operations waiting to run on a single thread, but it also helps you avoid the considerable overhead of creating and destroying a thread every time you require a worker thread.
+
+6. What is the relationship between the lifecycle of an AsyncTask and the lifecycle of an Activity? What problems can this result in, and how can these problems be avoided?
+An AsyncTask is not tied to the lifecycle of the Activity that contains it. If the Activity is destroyed and a new instance of the Activity is created, the AsyncTask won’t be destroyed. This can lead to a number of problems, but the major ones an Android developer should be aware of are:
+Once the AsyncTask completes, it’ll try to update the former instance of the Activity, resulting in an IllegalArgumentException.
+•	Since the AsyncTask maintains a reference to the previous instance of the Activity, that Activity won’t be garbage collected, resulting in a memory leak.
+•	The solution is to avoid using AsyncTasks for long-running background tasks.
+
+7. How would you access data in a ContentProvider?
+Ans:-
+
+8. What is the difference between Serializable and Parcelable?
+Conclusion.
+1.	Parcelable is faster than serializable interface
+2.	Parcelable interface takes more time for implemetation compared to serializable interface
+3.	Serializable interface is easier to implement
+4.	Serializable interface create a lot of temporary objects and cause quite a bit of garbage collection
+5.	Parcelable array can be pass via Intent in android
+In Parcelable, developers write custom code for marshaling and unmarshaling so it creates less garbage objects in comparison to Serialization. The performance of Parcelable over Serialization dramatically improves (around two times faster), because of this custom implementation.
+Serialization is a marker interface, which implies that user cannot marshal the data according to their requirements. In Serialization, a marshaling operation is performed on a Java Virtual Machine (JVM) using the Java reflection API. This helps identify the Java object's member and behavior, but also ends up creating a lot of garbage objects. Due to this, the Serialization process is slow in comparison to Parcelable.
+Parcelable Override Methods:-
+1. writeToParcel
+// This is where you write the values you want to save to the `Parcel`.  
+// The `Parcel` class has methods defined to help you save all of your values.  
+// Note that there are only methods defined for simple values, lists, and other Parcelable            
+     objects.  
+ // You may need to make several classes Parcelable to send the data you want.
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeInt(mData);
+        out.writeString(mName);
+        out.writeParcelable(mInfo, flags);
+    }
+
+2. describeContents
+// In the vast majority of cases you can simply return 0 for this.  
+// There are cases where you need to use the constant `CONTENTS_FILE_DESCRIPTOR`
+// But this is out of scope of this tutorial
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+3. CREATOR
+// After implementing the `Parcelable` interface, we need to create the 
+ // `Parcelable.Creator<MyParcelable> CREATOR` constant for our class; 
+// Notice how it has our class specified as its type.  
+    public static final Parcelable.Creator<MyParcelable> CREATOR
+            = new Parcelable.Creator<MyParcelable>() {
+
+        // This simply calls our new constructor (typically private) and 
+        // passes along the unmarshalled `Parcel`, and then returns the new object!
+        @Override
+        public MyParcelable createFromParcel(Parcel in) {
+            return new MyParcelable(in);
+        }
+
+        // We just need to copy this and change the type to match our class.
+        @Override
+        public MyParcelable[] newArray(int size) {
+            return new MyParcelable[size];
+        }
+    };
+
+
+What is the meaning of marshalling and unmarshalling?
+In few words, "marshalling" refers to the process of converting the data or the objects inbto a byte-stream, and "unmarshalling" is the reverse process of converting the byte-stream beack to their original data or object. The conversion is achieved through "serialization".
+
+9. What is an Adapter?An Adapter acts as this bridge, and is also responsible for converting each data entry into a View that can then be added to the AdapterView.
+Ans:-
+
+10. What is an Application Not Responding (ANR) error, and how can you prevent them from occurring in your app?
+Ans:-When the UI thread of an Android app is blocked for too long, an "Application Not Responding" (ANR) error is triggered.
+An ANR will be triggered for your app when one of the following conditions occur:
+1.	While your activity is in the foreground, your app has not responded to an input event or BroadcastReceiver (such as key press or screen touch events) within 5 seconds.
+2.	While you do not have an activity in the foreground, your BroadcastReceiver hasn't finished executing within a considerable amount of time.
+The following techniques can help you find out which of these causes is causing your ANRs.
+1) Strict mode
+•	Using StrictMode helps you find accidental I/O operations on the main thread while you’re developing your app. You can use StrictMode at the application or activity level.
+•	StrictMode is a developer tool which detects things you might be doing by accident and brings them to your attention so you can fix them.
+•	StrictMode is most commonly used to catch accidental disk or network access on the application's main thread, where UI operations are received and animations take place. Keeping disk and network operations off the main thread makes for much smoother, more responsive applications. By keeping your application's main thread responsive, you also prevent ANR dialogs from being shown to users.
+
+2) Traceview
+You can use Traceview to get a trace of your running app while going through the use cases and identify the places where the main thread is busy. For information about how to use Traceview, see Profiling with Traceview and dmtracedump.
+
+3) Pull a traces file
+Android stores trace information when it experiences an ANR. On older OS releases, there's a single /data/anr/traces.txt file on the device. On newer OS releases, there are multiple /data/anr/anr_* files. You can access ANR traces from a device or emulator by using Android Debug Bridge (adb) as root:
+
+12. What is a BuildType in Gradle? And what can you use it for?
+Ans:-Build Type refers to build and packaging settings like signing configuration for a project. For example, debug and release build types. The debug will use android debug certificate for packaging the APK file. While, release build type will use user-defined release certificate for signing and packaging the APK. Build types are defined in app’s build.gradle file like this:
+Flavour
+A flavor is used to specify custom features, minimum and target API levels, device and API requirements like layout, drawable and custom code (for example, if production code is slightly different than development code). This can help create different white label apps as well. Flavours can vary in adding different features or customizing exisitng features, different icons and resources, different styles and strings etc. A simple example of flavour can be to use the live server url as base url for Retrofit in one flavour while adding mock or testing server url for debugging purposes. Flavours are defined in app’s build.gradle file like this:
+Build Variant
+The combination of Build Type and Flavor is known as Build Variant. For example, for above build types (debug and release) and product flavours (free and paid versions), build variants can be freeDebug, freeRelease, paidDebug, paidRelease.
+
+14. Briefly describe some ways that you can optimize View usage.
+There are a number of methods, but the ones that tend to have the most impact are:
+Checking for excessive overdraw: install your app on an Android device, and then enable the "Debug GPU Overview" option.
+Flattening your view hierarchy: inspect your view hierarchy using Android Studio’s ‘Hierarchy Viewer’ tool.
+Measuring how long it takes each View to complete the measure, layout, and draw phases. You can also use Hierarchy Viewer to identify any parts of the rendering pipeline that you need to optimize.
+
+15. What is a Handler typically used for?
+Ans:-You use Handler to communicate between threads, most commonly to pass an action from a background thread to Android’s main thread. You cannot update the UI from any thread other that the main thread.
+
+16. What are the steps involved in creating a bound service through Android Interface Definition Language (AIDL)?
+•	Define an AIDL interface in an .aidl file.
+•	Save this file in the src/ directory of the application hosting the Activity and any other application that needs to bind to this service — the latter is particularly important, and is often overlooked.
+•	Build your application. Android SDK tools will then generate an IBinder interface file in your gen directory.
+•	Implement this interface, by extending the generated Binder interface and implementing the methods inherited from the .aidl file.
+•	Extend Service and override onBind() to return your implementation of the Stub class.
+
+17. What’s the difference between onCreate() and onStart()?
+Ans:-The onCreate() method is called once during the Activity lifecycle, either when the application starts, or when the Activity has been destroyed and then recreated, for example during a configuration change. The onStart() method is called whenever the Activity becomes visible to the user, typically after onCreate() or onRestart().
+
+18 Sync Adapter
+
+19 What is Multidex enable true
+•	Android application (APK) files contain executable bytecode files in the form of Dalvik Executable (DEX) files, which contain the compiled code used to run your app. 
+•	The Dalvik Executable specification limits the total number of methods that can be referenced within a single DEX file to 65,536, including Android framework methods, library methods, and methods in your own code. 
+•	Getting past this limit requires that you configure your app build process to generate more than one DEX file, known as a multidex configuration.
+•	Android applications by default have SingleDex support which limits your application to have only 65536 methods(references).
+•	 So multidexEnabled = true simply means that now you can write more than 65536 methods(references) in your application.
+
+20 Reducing battery usage in an android application
+•	Battery Usage Reduction is also an important part of an android development as this optimization will ultimately lead to retain the user, as many times the user uninstall the application because of the battery draining issue.
+Tips for improving battery usage in an android application:
+•	Reduce network calls as much as you can: Cache your data and retrieve it from the cache when required next time.
+•	Avoid wake lock as much as possible: A wake lock is a mechanism to indicate that your application needs to have the device stay on.
+•	Use AlarmManager carefully: Wrong use of AlarmManager can easily drain the battery.
+•	Batch the network calls: You should batch the network calls if possible so that you can prevent the device from waking every second.
+•	A Different logic for Mobile Data and Wifi: You should write different logic for mobile data and wifi as one logic may be optimized for mobile data and other may be optimized for wifi.
+•	Check all background processes: You should check all the background processes.
+•	Use GPS carefully: Do not use it frequently, use it only when actually required.
+•	Use JobScheduler: This is an API for scheduling various types of jobs against the framework that will be executed in your application’s own process. The framework will be intelligent about when you receive your callbacks and attempt to batch and defer them as much as possible. For backward compatibility use Evernote’s android-job library.
+
+Which tool should I use to check the battery usage of android app?
+Battery Historian
+Battery Historian is a tool that displays information about your phone’s battery usage in HTML form.
+
+21 What is the onTrimMemory() method?
+Ans:- onTrimMemory(): Called when the operating system has determined that it is a good time for a process to trim unneeded memory from its process. This will happen for example when it goes in the background and there is not enough memory to keep as many background processes running as desired.
+22. Difference between File, Class, Activity
+File - It is a block of arbitrary information, or resource for storing information. It can be of any type
+Class - Its a compiled form of .Java file . Android finally used this .class files to produce an executable apk
+Activity - An activity is the equivalent of a Frame/Window in GUI toolkits. It is not a file or a file type it is just a class that can be extended in Android for loading UI elements on view.
