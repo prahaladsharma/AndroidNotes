@@ -1,0 +1,196 @@
+Android 8.0 Features and APIs (OREO)
+1) User Experience
+1.1) Picture-in-Picture mode (PIP Mode)
+•	PIP is a special type of multi-window mode mostly used for video playback. PIP mode was originally available for Android TV only; Android 8.0 makes the feature available on other Android devices.
+•	When an activity is in PIP mode, it is in the paused state, but should continue showing content. For this reason, you should make sure your app does not pause playback in its onPause() handler. Instead, you should pause video in onStop(), and resume playback in onStart(). For more information, see Multi-Window Lifecycle.
+•	To specify that your activity can use PIP mode, set android:supportsPictureInPicture to true in the manifest. 
+Activity.enterPictureInPictureMode(PictureInPictureParams args): 
+•	Places the activity in picture-in-picture mode. The activity's aspect ratio and other configuration settings are specified by args. If any fields in args are empty, the system uses the values set the last time you called Activity.setPictureInPictureParams().
+•	The specified activity is placed in a corner of the screen, the rest of the screen is filled with the previous activity that was on screen. The activity entering PIP mode goes into the paused state, but remains started. If the user taps the PIP activity, the system shows a menu for the user to interact with; no touch events reach the activity while it is in the PIP state.
+1.2) Notifications
+•	In Android 8.0 (API level 26), we've redesigned notifications to provide an easier and more consistent way to manage notification behavior and settings. These changes include:
+•	Notification channels:Notification channels allow you to create a user-customizable channel for each type of notification you want to display. The user interface refers to notification channels as notification categories. 
+•	Notification dots: Android 8.0 introduces support for displaying dots, or badges, on app launcher icons. Notification dots reflect the presence of notifications that the user has not yet dismissed or acted on.
+•	Snoozing: Users can snooze notifications, which causes them to disappear for a period of time before reappearing. 
+•	Notification timeouts: You can set a timeout when creating a notification using setTimeoutAfter(). You can use this method to specify a duration after which a notification should be canceled.
+•	Notification settings: You can call setSettingsText() to set the text that appears when you create a link to your app's notification settings from a notification using the Notification.INTENT_CATEGORY_NOTIFICATION_PREFERENCES intent. 
+•	Notification dismissal: Users can dismiss notifications themselves, and apps can remove them programmatically. You can determine when a notification is dismissed and why it's dismissed by implementing the onNotificationRemoved() method from the NotificationListenerService class.
+•	Background colors: You can set and enable a background color for a notification. You can also set the desired background color using setColor(). Doing so allows you to use setColorized() to enable the use of a background color for a notification.
+•	Messaging style: In Android 8.0, notifications that use the MessagingStyle class display more content in their collapsed form. You should use the MessagingStyle class for notifications that are messaging-related. You can also use the addHistoricMessage() method to provide context to a conversation by adding historic messages to messaging-related notifications.
+1.3) Autofill framework
+•	Android 8.0 (API level 26) makes filling out forms, such as login and credit card forms, easier with the introduction of the Autofill Framework. Existing and new apps work with Autofill Framework after the user opts in to autofill.
+1.4) Downloadable fonts   
+•	Android 8.0 (API level 26) and Android Support Library 26 let you request fonts from a provider application instead of bundling fonts into the APK or letting the APK download fonts. This feature reduces your APK size, increases the app installation success rate, and allows multiple apps to share the same font.
+1.5) Fonts in XML
+•	Android 8.0 (API level 26) introduces a new feature, Fonts in XML, which lets you use fonts as resources. This means, there is no need to bundle fonts as assets. Fonts are compiled in R file and are automatically available in the system as a resource. You can then access these fonts with the help of a new resource type, font.
+1.6)Autosizing TextView
+•	Android 8.0 (API level 26) lets you set the size of your text expand or contract automatically based on the size of the TextView. This means, it is much easier to optimize the text size on different screens or with dynamic content. 
+1.7) Adaptive icons
+•	Android 8.0 (API level 26) introduces adaptive launcher icons. Adaptive icons support visual effects, and can display a variety of shapes across different device models.
+1.8) Color management
+•	To display wide gamut images, apps will need to enable a flag in their manifest (per activity) and load bitmaps with an embedded wide color profile (AdobeRGB, Pro Photo RGB, DCI-P3, etc.).
+1.9) WebView APIs
+•	Version API
+•	Google SafeBrowsing API
+•	Termination Handle API
+•	Renderer Importance API
+
+1.10)Pinning shortcuts and widgets
+•	Android 8.0 (API level 26) introduces in-app pinning of shortcuts and widgets. In your app, you can create pinned shortcuts and widgets for supported launchers, subject to user permission.
+1.11) Maximum screen aspect ratio
+•	First, Android 8.0 introduces the maxAspectRatio attribute, which you can use to set your app's maximum aspect ratio. In addition, in Android 8.0 and higher, an app's default maximum aspect ratio is the native aspect ratio of the device on which the app is running.
+1.12) Multi-display support
+•	If an activity supports multi-window mode and is running on a device with multiple displays, users can move the activity from one display to another. When an app launches an activity, the app can specify which display the activity should run on.
+•	Only one activity at a time can be in the resumed state, even if the app has multiple displays. The activity with focus is in the resumed state; all other visible activities are paused, but not stopped. For more information on the activity lifecycle when several activities are visible, see Multi-Window Lifecycle.
+•	When a user moves an activity from one display to another, the system resizes the activity and issues runtime changes as necessary. Your activity can handle the configuration change itself, or it can allow the system to destroy the process containing your activity and recreate it with the new dimensions. 
+1.13) Unified layout margins and padding
+You can now use the following attributes in your layout XML files:
+•	layout_marginVertical, which defines layout_marginTop and layout_marginBottom at the same time.
+•	layout_marginHorizontal, which defines layout_marginLeft and layout_marginRight at the same time.
+•	paddingVertical, which defines paddingTop and paddingBottom at the same time.
+•	paddingHorizontal, which defines paddingLeft and paddingRight at the same time.
+1.14) Pointer capture
+•	Starting in Android 8.0, a View in your app can request pointer capture and define a listener to process captured pointer events. The mouse pointer is hidden while in this mode. 
+•	The view can release pointer capture when it doesn't need the mouse information anymore. 
+•	The system can also release pointer capture when the view loses focus, for example, when the user opens another app.
+1.15) App categories
+•	These categories are used to cluster together apps of similar purpose or function when presenting them to users, such as in Data Usage, Battery Usage, or Storage Usage. 
+•	You can define a category for your app by setting the android:appCategory attribute in your <application> manifest tag.
+1.16) Android TV launcher
+•	The new home screen organizes video content in rows corresponding to channels, which are each populated with programs by an app on the system. 
+•	Apps can publish multiple channels, and users can configure which channels that they wish to see on the home screen. 
+•	The Android TV home screen also includes a Watch Next row, which is populated with programs from apps, based on the viewing habits of the user. 
+•	Apps can also provide video previews, which are automatically played when a user focuses on a program. 
+•	The APIs for populating channels and programs are part of the TvProvider APIs, which are distributed as a Android Support Library module with Android 8.0.
+1.17) AnimatorSet
+•	The AnimatorSet API now supports seeking and playing in reverse.
+•	 Seeking lets you set the position of the animation set to a specific point in time. 
+•	Playing in reverse is useful if your app includes animations for actions that can be undone. 
+•	Instead of defining two separate animation sets, you can play the same one in reverse.
+
+2) System
+2.1) New StrictMode detectors
+Android 8.0 (API level 26) adds three new StrictMode detectors to help identify potential bugs in your app:
+•	detectUnbufferedIo() will detect when your app reads or writes data without buffering, which can drastically impact performance.
+•	detectContentUriWithoutPermission() will detect when your app accidentally forgets to grant permissions to another app when starting an Activity outside your app.
+•	detectUntaggedSockets() will detect when your app performs network traffic without using setThreadStatsTag(int) to tag your traffic for debugging purposes.
+2.2) Cached data
+•	Each app is now given a disk space quota for cached data, as returned by getCacheQuotaBytes(UUID).
+•	When the system needs to free up disk space, it will start by deleting cached files from apps that are the most over their allocated quota. Thus, if you keep your cached data under your allocated quota, your cached files will be some of the last on the system to be cleared when necessary. When the system is deciding what cached files to delete inside your app, it will consider the oldest files first (as determined by modified time).
+•	There are also two new behaviors that you can enable on a per-directory basis to control how the system frees up your cached data:
+•	StorageManager.setCacheBehaviorAtomic() can be used to indicate that a directory and all of its contents should be deleted as a single atomic unit.
+•	setCacheBehaviorTombstone(File, boolean) can be used to indicate that instead of deleting files inside a directory, they should be truncated to be 0 bytes in length, leaving the empty file intact.
+•	Finally, when you need to allocate disk space for large files, consider using the new allocateBytes(FileDescriptor, long) API, which will automatically clear cached files belonging to other apps (as needed) to meet your request. 
+•	When deciding if the device has enough disk space to hold your new data, call getAllocatableBytes(UUID) instead of using getUsableSpace(), since the former will consider any cached data that the system is willing to clear on your behalf.
+2.3) Content provider paging
+•	We've updated content providers to include support for loading a large dataset one page at a time. 
+•	For example, a photo app with many thousands of images can query for a subset of the data to present in a page. Each page of results returned by a content provider is represented by a single Cursor object. Both a client and a provider must implement paging to make use of this feature.
+2.4) Content refresh requests
+•	The ContentProvider and ContentResolver classes now each include a refresh() method, making it easier for clients to know whether the information they request is up-to-date.
+•	You can add custom content refreshing logic by extending ContentProvider. Make sure that you override the refresh() method to return true, indicating to your provider's clients that you've attempted to refresh the data yourself.
+•	Your client app can explicitly request refreshed content by calling a different method, also called refresh(). When calling this method, pass in the URI of the data to refresh.
+2.5) JobScheduler improvements
+•	You can now associate a work queue with a scheduled job. To add a work item to a job's queue, call JobScheduler.enqueue(). When the job is running, it can take pending work off the queue and process it. This functionality handles many of the use cases that previously would have called for starting a background service, particulary services that implement IntentService.
+•	Introduces a new JobIntentService class, which provides the same functionality as IntentService but uses jobs instead of services when running on Android 8.0 (API level 26) or higher.
+•	You can now call JobInfo.Builder.setClipData() to associate a ClipData with a job. This option enables you to associate URI permission grants with a job, similarly to how these permissions can be propogated to Context.startService(). You can also use URI permission grants with intents on work queues.
+Scheduled jobs now support several new constraints:
+•	JobInfo.isRequireStorageNotLow()
+                Job does not run if the device's available storage is low.
+•	JobInfo.isRequireBatteryNotLow()
+ Job does not run if the battery level is at or below the criticial threshold; this is                        the level at which the device shows the Low battery warning system dialog.
+•	NETWORK_TYPE_METERED
+Job requires a metered network connection, like most cellular data plans.
+2.6)Custom data store
+•	Android 8.0 (API level 26) lets you provide a custom data store to your preferences, which can be useful if your app stores the preferences in a cloud or local database, or if the preferences are device-specific. 
+3) Media enhancements
+3.1) VolumeShaper
+•	There is a new VolumeShaper class. Use it to perform short automated volume transitions like fade-ins, fade-outs, and cross fades
+3.2) Audio focus enhancements
+•	Audio apps share the audio output on a device by requesting and abandoning audio focus. 
+•	An app handles changes in focus by starting or stopping playback, or ducking its volume. 
+•	There is a new AudioFocusRequest class. Using this class as the parameter of requestAudioFocus(), apps have new capabilites when handling changes in audio focus: automatic ducking and delayed focus gain.
+3.3) Media metrics
+•	A new getMetrics() method returns a PersistableBundle object containing configuration and performance information, expressed as a map of attributes and values. 
+         The getMetrics() method is defined for these media classes:
+•	MediaPlayer.getMetrics()
+•	MediaRecorder.getMetrics()
+•	MediaCodec.getMetrics()
+•	MediaExtractor.getMetrics()
+•	Metrics are collected separately for each instance and persist for the lifetime of the instance. If no metrics are available the method returns null. The actual metrics returned depend on the class
+3.4) MediaPlayer
+•	Starting in Android 8.0 (API level 26) MediaPlayer can playback DRM-protected material and HLS sample-level encrypted media.
+•	Android 8.0 introduces a new overloaded seekTo() command that provides fine-grained control when seeking to a frame. It includes a second parameter that specifies a seek mode:
+•	SEEK_PREVIOUS_SYNC moves the media position to a sync (or key) frame associated with a data source that is located right before or at the given time.
+•	SEEK_NEXT_SYNC moves the media position to a sync (or key) frame associated with a data source that is located right after or at the given time.
+•	SEEK_CLOSEST_SYNC moves the media position to a sync (or key) frame associated with a data source that is located closest to or at the given time.
+•	SEEK_CLOSEST moves the media position to a frame (not necessarily a sync or key frame) associated with a data source that is located closest to or at the given time.
+•	When seeking continuously, apps should use any of the SEEK_ modes rather than SEEK_CLOSEST, which runs relatively slower but can be more precise
+3.5) MediaRecorder
+•	MediaRecorder now supports the MPEG2_TS format which is useful for streaming:
+mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_2_TS);
+•	The MediaMuxer can now handle any number of audio and video streams. You are no longer limited to one audio track and/or one video track. Use addTrack() to mix as many tracks as you like.
+•	The MediaMuxer can also add one or more metadata tracks containing user-defined per-frame information. The format of the metadata is defined by your application. The metadata track is only supported for MP4 containers.
+4) Connectivity
+4.1) Wi-Fi Aware
+•	Android 8.0 (API level 26) adds support for Wi-Fi Aware, which is based on the Neighbor Awareness Networking (NAN) specification. On devices with the appropriate Wi-Fi Aware hardware, apps and nearby devices can discover and communicate over Wi-Fi without an Internet access point. We're working with our hardware partners to bring Wi-Fi Aware technology to devices as soon as possible. 
+4.2) Bluetooth
+•	Support for the AVRCP 1.4 standard, which enables song-library browsing.
+•	Support for the Bluetooth Low-Energy (BLE) 5.0 standard.
+•	Integration of the Sony LDAC codec into the Bluetooth stack.
+•	Companion device pairing
+•	Android 8.0 (API level 26) provides APIs that allow you to customize the pairing request dialog when trying to pair with companion devices over Bluetooth, BLE, and Wi-Fi. For more information, see Companion Device Pairing.
+4.3)Companion device pairing
+•	Android 8.0 (API level 26) provides APIs that allow you to customize the pairing request dialog when trying to pair with companion devices over Bluetooth, BLE, and Wi-Fi. For more information, see Companion Device Pairing.
+5)Sharing
+5.1) Smart sharing
+•	Android 8.0 (API level 26) learns about users' personalized sharing preferences and better understands for each type of content which are the right apps to share with. For example, if a user takes a photo of a receipt, Android 8.0 can suggest an expense-tracking app; if the user takes a selfie, a social media app can better handle the image. Android 8.0 automatically learns all these patterns according to users' personalized preferences.
+•	Smart sharing works for types of content other than image, such as audio, video, text, URL, etc.
+•	To enable Smart sharing, add an ArrayList of up to three string annotations to the intent that shares the content. The annotations should describe the major components or topics in the content. The following code example shows how to add annotations to the intent:
+ArrayList<String> annotations = new ArrayList<>();
+annotations.add("topic1");
+annotations.add("topic2");
+annotations.add("topic3");
+
+intent.putStringArrayListExtra(
+    Intent.EXTRA_CONTENT_ANNOTATIONS,
+    annotations
+);
+
+5.2) Text classifier
+•	On compatible devices, apps can use a new Text Classifier to check whether a string matches a known classifier entity type and get suggested selection alternatives. Entities recognized by the system include addresses, URLs, telephone numbers, and email addresses. 
+
+6) Accessibility
+•	A new volume category for adjusting accessibility volume.
+•	Fingerprint gestures as an input mechanism.
+•	Multilingual text to speech capabilities.
+•	A hardware-based accessibility shortcut for quickly accessing a preferred accessibility service.
+•	Support for continued gestures, or programmatic sequences of strokes.
+•	An accessibility button for invoking one of several enabled accessibility features (available only on devices that use a software-rendered navigation area).
+•	Standardized one-sided range values.
+•	Several features for processing text more easily, including hint text and locations of on-screen text characters.
+
+
+7) Security & Privacy
+7.1) Permissions
+•	The ANSWER_PHONE_CALLS permission allows your app to answer incoming phone calls programmatically. To handle an incoming phone call in your app, you can use the acceptRingingCall() method.
+•	The READ_PHONE_NUMBERS permission grants your app read access to the phone numbers stored in a device.
+•	These permission are both classified as dangerous and are both part of the PHONE permission group.
+
+7.2) New account access and discovery APIs
+•	Android 8.0 (API level 26) introduces several improvements to how apps get access to user accounts. For the accounts that they manage, authenticators can use their own policy to decide whether to hide accounts from, or reveal accounts to, an app. The Android system tracks applications which can access a particular account.
+•	In previous versions of Android, apps that wanted to track the list of user accounts had to get updates about all accounts, including accounts with unrelated types. Android 8.0 adds the addOnAccountsUpdatedListener(android.accounts.OnAccountsUpdateListener, android.os.Handler, boolean, java.lang.String[]) method, which lets apps specify a list of account types for which account changes should be received.
+
+8) Testing
+8.1)Instrumentation testing
+•	Run against non-default app processes
+•	You can now specify that a particular instrumentation test should run against a process outside your app's default process. This configuration is useful if your app contains multiple activities that run in different processes.
+•	To define non-default process instrumentation, navigate to your manifest file, then to the desired <instrumentation> element. Add the android:targetProcess attribute, and set its value to one of the following:
+•	The name of a particular process.
+•	A comma-separated list of process names.
+•	A wildcard ("*"), which allows the instrumentation to run against any launched process that executes code in the package specified in the android:targetPackage attribute.
+
+9) Android enterprise
+•	Work profiles on fully managed devices let enterprises separate work from personal data, while managing both.
+•	API delegation allows device owners and profile owners to assign app management to other applications.
+•	User experience improvements in the provisioning flow (including new customization options) reduce the setup time.
+•	New controls over Bluetooth, Wi-Fi, backup, and security let enterprises manage more of the device. Network activity logging help enterprises track down problems.
