@@ -1,0 +1,52 @@
+Threading in Android
+In Android, you can categorize all threading components into two basic categories:
+Threads that are attached to an activity/fragment: These threads are tied to the lifecycle of the activity/fragment and are terminated as soon as the activity/fragment is destroyed.
+Threads that are not attached to any activity/fragment: These threads can continue to run beyond the lifetime of the activity/fragment (if any) from which they were spawned.
+1)(Threading Components that Attach to an Activity/Fragment:-
+1.1) AsyncTask
+Pro:- AsyncTask is the most basic Android component for threading. It’s simple to use and can be good for basic scenarios.
+Cons:- however, falls short if you need your deferred task to run beyond the lifetime of the activity/fragment. It is worth noting that even something as simple as screen rotation can cause the activity to be destroyed.
+1.2) Loaders
+Loaders are the solution for the problem mentioned above. Loaders can automatically stop when the activity is destroyed, and can also restart themselves after the activity is recreated. There are mainly two types of loaders: AsyncTaskLoader and CursorLoader.
+2) Threading Components that Don’t Attach to an Activity/Fragment
+2.1) Service
+Service is a component that is useful for performing long (or potentially long) operations without any UI.
+Service runs in the main thread of its hosting process; the service does not create its own thread and does not run in a separate process unless you specify otherwise.
+With Service, it is your responsibility to stop it when its work is complete by calling either the stopSelf() or the stopService() method.
+2.2) IntentService
+Like Service, IntentService runs on a separate thread, and stops itself automatically after it completes its work.
+IntentService is usually used for short tasks that don’t need to be attached to any UI.IntentService
+Like Service, IntentService runs on a separate thread, and stops itself automatically after it completes its work.
+IntentService is usually used for short tasks that don’t need to be attached to any UI.
+************************************************************************Threads
+When an application is launched, the system creates a thread of execution for the application, called "main." This thread is very important because it is in charge of dispatching events to the appropriate user interface widgets, including drawing events. It is also almost always the thread in which your application interacts with components from the Android UI toolkit (components from the android.widget and android.view packages). As such, the main thread is also sometimes called the UI thread. However, under special circumstances, an app's main thread might not be its UI thread; for more information, see Thread annotations.
+The system does not create a separate thread for each instance of a component. All components that run in the same process are instantiated in the UI thread, and system calls to each component are dispatched from that thread. Consequently, methods that respond to system callbacks (such as onKeyDown() to report user actions or a lifecycle callback method) always run in the UI thread of the process.
+For instance, when the user touches a button on the screen, your app's UI thread dispatches the touch event to the widget, which in turn sets its pressed state and posts an invalidate request to the event queue. The UI thread dequeues the request and notifies the widget that it should redraw itself.
+When your app performs intensive work in response to user interaction, this single thread model can yield poor performance unless you implement your application properly. Specifically, if everything is happening in the UI thread, performing long operations such as network access or database queries will block the whole UI. When the thread is blocked, no events can be dispatched, including drawing events. From the user's perspective, the application appears to hang. Even worse, if the UI thread is blocked for more than a few seconds (about 5 seconds currently) the user is presented with the infamous "application not responding" (ANR) dialog. The user might then decide to quit your application and uninstall it if they are unhappy.
+Additionally, the Android UI toolkit is not thread-safe. So, you must not manipulate your UI from a worker thread—you must do all manipulation to your user interface from the UI thread. Thus, there are simply two rules to Android's single thread model:
+1.	Do not block the UI thread
+2.	Do not access the Android UI toolkit from outside the UI thread
+Worker threads
+Because of the single threaded model described above, it's vital to the responsiveness of your application's UI that you do not block the UI thread. If you have operations to perform that are not instantaneous, you should make sure to do them in separate threads ("background" or "worker" threads).
+However, note that you cannot update the UI from any thread other than the UI thread or the "main" thread.
+To fix this problem, Android offers several ways to access the UI thread from other threads. Here is a list of methods that can help:
+•	Activity.runOnUiThread(Runnable)
+•	View.post(Runnable)
+•	View.postDelayed(Runnable, long)
+
+public void onClick(View v) {
+    new Thread(new Runnable() {
+        public void run() {
+            // a potentially  time consuming task
+            final Bitmap bitmap = processBitMap("image.png");
+            mImageView.post(new Runnable() {
+                public void run() {
+                    mImageView.setImageBitmap(bitmap);
+                }
+            });
+        }
+    }).start();
+}
+
+This implementation is thread-safe: the background operation is done from a separate thread while the ImageView is always manipulated from the UI thread.
+However, as the complexity of the operation grows, this kind of code can get complicated and difficult to maintain. To handle more complex interactions with a worker thread, you might consider using a Handler in your worker thread, to process messages delivered from the UI thread. Perhaps the best solution, is to extend the AsyncTask class, which simplifies the execution of worker thread tasks that need to interact with the UI.
