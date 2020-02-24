@@ -1,0 +1,36 @@
+Location in Android
+There are two ways for getting location .
+1. Location Manager 
+2. Fused Location Provider
+
+1. Location Manager :-
+There are two types of location providers,
+i.	GPS Location Provider
+ii.	Network Location Provider
+Any one of the above providers is enough to get current location of the user or user’s device. But, it is recommended to use both providers as they both have different advantages. Because, GPS provider will take time to get location at indoor area. And, the Network Location Provider will not get location when the network connectivity is poor.
+Network Location Provider vs GPS Location Provider
+•	Network Location provider is comparatively faster than the GPS provider in providing the location co-ordinates.
+•	GPS provider may be very very slow in in-door locations and will drain the mobile battery.
+•	Network location provider depends on the cell tower and will return our nearest tower location.
+•	GPS location provider, will give our location accurately.
+Steps to get location in Android
+•	Provide permissions in manifest file for receiving location update
+•	Create LocationManager instance as reference to the location service
+•	Request location from LocationManager
+•	Receive location update from LocationListener on change of location
+2. Fused Location Provider
+We need not explicitly choose either GPS or Network location Provider, as the “Fused Location Provider” automatically chooses the underlying technology and gives the best location as per the need.
+Fused Location Provider
+•	It provides simple and easy to use APIs.
+•	Provides high accuracy over other options.
+•	Utilizes low power by choosing the most efficient way to access the location.
+Three Use Cases for location access
+With respect to fused location provider, we can broadly classify the API usage in three use cases.
+1.	getLastLocation(GoogleApiClient) this API should be used when there is no need for continuous access to location from an application. Like one shot access or get user location based on some action. This is the simplified way to get the device location and also may not provide high accuracy.
+2.	requestLocationUpdates(GoogleApiClient,LocationRequest, LocationListener) this API should be used when there a need for continuous location updates and the location is accessed when the application is active in foreground.
+3.	requestLocationUpdates (GoogleApiClient, LocationRequest, PendingIntent) this API is used to receive location updates in the background even when the application is not active. So the difference is PendingIntent.
+
+
+
+
+
