@@ -1,0 +1,22 @@
+ListView VS RecyclerView
+1) ViewHolder:-
+The ViewHolder pattern allows us to make our list scrolling act smoothly. It stores list row views references and, thanks to this, calling the findViewById() method only occurs a couple of times, rather than for the entire dataset and on each bind view.
+The RecyclerView’s adapter forces us to use the ViewHolder pattern. The creating part (inflating the layout and finding views) and updating the views is split into two methods — onCreateViewHolder() and onBindViewHolder().
+The ListView, on the other hand, doesn’t give us that kind of protection by default, so without implementing the ViewHolder pattern inside the getView() method, we’ll end with inefficient scrolling in our list.
+2) LayoutManager:
+The LayoutManager takes responsibility for layouting row views.This class gives us the opportunity to choose the way that we want to show the row views and how to scroll the list. For example, if we want to scroll our list vertically or horizontally, we can choose LinearLayoutManager. For grids, it is more suitable to choose the GridLayoutManager.
+Previously, with the use of the ListView, we were only able to create a vertical-scrolling list, so it wasn’t that flexible. If we wanted grids on our list, we had to choose the other widget for that — GridView. 
+There are 3 Layout Managers available for RecyclerView:
+1. LinearLayoutManager: for handling fairly simpler linear layouts (Vertical or Horizontal)
+2. GridLayoutManager: for making/handling grid layouts with spans (columns)
+3. StaggeredLayoutManager:- 
+3) ItemDecoration:
+A duty of the ItemDecoration is simple in theory – add some decorations for the list row views – but in practice, it’s that simple to implement if we want to create a custom one. In this case, we should extend the ItemDecoration class and implement our solution. For example, the RecyclerView list has no dividers between rows by default and it’s consistent with the Material Design guidelines. However, if we want to add a divider for some reason, we can use DividerItemDecoration and add it to the RecyclerView.
+In case we use the ListView, we have to figure out rows decorations by ourselves. There is no helper class like ItemDecoration for this widget.
+4) ItemAnimator:
+it’s handling row views animations like list appearance and disappearance, adding or removing particular views and so on. By default, RecyclerView’s list animations are nice and smooth. Of course, we can change that by creating our own ItemAnimator, which is also not that easy. To make it easier, we should extend the SimpleItemAnimator class and implement the methods that we need (just add animations to a ViewHolder’s views).
+To be honest, implementing animations on the ListView was a pain in the ass. Again, we had to figure out how we want to handle them. Nothing nice. I’m glad it’s gone.
+5) Notifying adapter:
+We have a couple of cool notifiers on the RecyclerView’s adapter. We are still able to use notifyDataSetChanged() but there are also ones for particular list elements, like notifyItemInserted(), notifyItemRemoved() or even notifyItemChanged() and more. We should use the most appropriate ones for what is actually happening, so the proper animations will fire correctly.
+Using ListView, we were able to use just notifyDataSetChanged() on the adapter and then had to handle the rest ourselves, again.
+
