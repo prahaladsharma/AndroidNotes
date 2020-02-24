@@ -1,0 +1,42 @@
+ArrayList Vs LinkedList
+1) Search: ArrayList search operation is pretty fast compared to the LinkedList search operation. get(int index) in ArrayList gives the performance of O(1) while LinkedList performance is O(n).
+Reason: ArrayList maintains index based system for its elements as it uses array data structure implicitly which makes it faster for searching an element in the list. On the other side LinkedList implements doubly linked list which requires the traversal through all the elements for searching an element.
+2) Deletion: LinkedList remove operation gives O(1) performance while ArrayList gives variable performance: O(n) in worst case (while removing first element) and O(1) in best case (While removing last element).
+Conclusion: LinkedList element deletion is faster compared to ArrayList.
+Reason: LinkedList’s each element maintains two pointers (addresses) which points to the both neighbor elements in the list. Hence removal only requires change in the pointer location in the two neighbor nodes (elements) of the node which is going to be removed. While In ArrayList all the elements need to be shifted to fill out the space created by removed element.
+3) Inserts Performance: LinkedList add method gives O(1) performance while ArrayList gives O(n) in worst case. Reason is same as explained for remove.
+4) Memory Overhead: ArrayList maintains indexes and element data while LinkedList maintains element data and two pointers for neighbor nodes hence the memory consumption is high in LinkedList comparatively.
+ArrayList is implemented as a resizable array. As more elements are added to ArrayList, its size is increased dynamically. It's elements can be accessed directly by using the get and set methods, since ArrayList is essentially an array. 
+LinkedList is implemented as a double linked list. Its performance on add and remove is better than Arraylist, but worse on get and set methods. 
+Vector is similar with ArrayList, but it is synchronized. ArrayList is a better choice if your program is thread-safe. Vector and ArrayList require space as more elements are added. Vector each time doubles its array size, while ArrayList grow 50% of its size each time.
+There are 2 major differentiation's between Vector and ArrayList.
+1.	Vector is synchronized by default, and ArrayList is not. Note : you can make ArrayList also synchronized by passing arraylist object to Collections.synchronizedList() method. Synchronized means : it can be used with multiple threads with out any side effect.
+2.	ArrayLists grow by 50% of the previous size when space is not sufficient for new element, where as Vector will grow by 100% of the previous size when there is no space for new incoming element.
+Other than this, there are some practical differences between them, in terms of programming effort:
+1.	To get the element at a particular location from Vector we use elementAt(int index) function. This function name is very lengthy. In place of this in ArrayList we have get(int index) which is very easy to remember and to use.
+2.	Similarly to replace an existing element with a new element in Vector we use setElementAt() method, which is again very lengthy and may irritate the programmer to use repeatedly. In place of this ArrayList has add(int index, object) method which is easy to use and remember. Like this they have more programmer friendly and easy to use function names in ArrayList.
+When to use which one?
+1.	Try to avoid using Vectors completely. ArrayLists can do everything what a Vector can do. More over ArrayLists are by default not synchronized. If you want, you can synchronize it when ever you need by using Collections util class.
+2.	ArrayList has easy to remember and use function names.
+Note : even though arraylist grows by 100%, you can avoid this by ensurecapacity() method to make sure that you are allocating sufficient memory at the initial stages itself.
+How to describe Array Lists in interview?
+•	Java Array List is the resizable array implementation of list interface .
+•	Java ArrayList is not synchronized.
+•	Size of the ArrayList grows and shrinks as you add or remove the elements.
+•	ArrayLists in Java supports generics.
+•	Big-O Complexity Access Θ(1) SearchΘ(n) InsertionΘ(n) DeletionΘ(n)
+
+Question: What is difference between length() of array and size() of ArrayList methods?
+If we call length() method on array, it will return how many elements , we can store in this array, this is known as capacity, but if we call size() function of ArrayList class then It will return total number of elements currently stored in ArrayList, which is always less than or equal to capacity.
+Question: What is CopyOnWriteArrayList in Java?
+Its a concurrent collection class which is introduced as an alternative of synchronized List in Java. This class take advantage of advanced thread-safety technique instead of locking. Its very efficient if ArrayList is mostly used for reading purpose. Because it allows multiple threads to read data without locking, which was not possible with synchronized ArrayList. 
+
+ArrayList Default capacity:-
+Before Java 8 the default size id 10 but In java 8 default capacity of ArrayList is 0 until we add at least one object into the ArrayList object. 
+ArrayList default size in JAVA 8 is stil 10. The only change made in JAVA 8 is that if a coder adds elements less than 10 then the remaining arraylist blank places are not specified to null.
+Default size example
+ArrayList-10
+Vector-10
+HashTable-11
+HashSet-16
+HashMap-16
