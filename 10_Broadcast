@@ -1,0 +1,90 @@
+Android - Broadcast Receivers
+Broadcast Receivers simply respond to broadcast messages from other applications or from the system itself. These messages are sometime called events or intents. For example, applications can also initiate broadcasts to let other applications know that some data has been downloaded to the device and is available for them to use, so this is broadcast receiver who will intercept this communication and will initiate appropriate action.
+Broadcast Receivers are like Antennas. Just like Antennas can be tuned to catch certain frequencies, broadcast receivers can be registered to certain intent actions. When that action event triggers, the BroadcastReceiver gets called.
+Android apps can send or receive broadcast messages from the Android system and other Android apps, similar to the publish-subscribe design pattern. These broadcasts are sent when an event of interest occurs. For example, the Android system sends broadcasts when various system events occur, such as when the system boots up or the device starts charging. Apps can also send custom broadcasts, for example, to notify other apps of something that they might be interested in (for example, some new data has been downloaded).
+Apps can register to receive specific broadcasts. When a broadcast is sent, the system automatically routes broadcasts to apps that have subscribed to receive that particular type of broadcast.
+Generally speaking, broadcasts can be used as a messaging system across apps and outside of the normal user flow. However, you must be careful not to abuse the opportunity to respond to broadcasts and run jobs in the background that can contribute to a slow system performance.
+About system broadcasts
+The system automatically sends broadcasts when various system events occur, such as when the system switches in and out of airplane mode. System broadcasts are sent to all apps that are subscribed to receive the event.
+Changes to system broadcasts
+Android 9
+Beginning with Android 9 (API level 28), The NETWORK_STATE_CHANGED_ACTION broadcast doesn't receive information about the user's location or personally identifiable data.
+In addition, if your app is installed on a device running Android 9 or higher, system broadcasts from Wi-Fi don't contain SSIDs, BSSIDs, connection information, or scan results. To get this information, call getConnectionInfo() instead.
+Android 8.0
+Beginning with Android 8.0 (API level 26), the system imposes additional restrictions on manifest-declared receivers.
+If your app targets Android 8.0 or higher, you cannot use the manifest to declare a receiver for most implicit broadcasts (broadcasts that don't target your app specifically). You can still use a context-registered receiver when the user is actively using your app.
+Android 7.0
+Android 7.0 (API level 24) and higher don't send the following system broadcasts:
+•	ACTION_NEW_PICTURE
+•	ACTION_NEW_VIDEO
+Also, apps targeting Android 7.0 and higher must register the CONNECTIVITY_ACTION broadcast using registerReceiver(BroadcastReceiver, IntentFilter). Declaring a receiver in the manifest doesn't work.
+There are following two important steps to make BroadcastReceiver works for the system broadcasted intents −
+•	Creating the Broadcast Receiver.
+•	Registering Broadcast Receiver
+There is one additional steps in case you are going to implement your custom intents then you will have to create and broadcast those intents.
+Creating the Broadcast Receiver
+A broadcast receiver is implemented as a subclass of BroadcastReceiver class and overriding the onReceive() method where each message is received as a Intent object parameter.
+public class MyReceiver extends BroadcastReceiver {
+   @Override
+   public void onReceive(Context context, Intent intent) {
+      Toast.makeText(context, "Intent Detected.", Toast.LENGTH_LONG).show();
+   }
+}
+
+Registering Broadcast Receiver
+An application listens for specific broadcast intents by registering a broadcast receiver in AndroidManifest.xml file. Consider we are going to register MyReceiver for system generated event ACTION_BOOT_COMPLETED which is fired by the system once the Android system has completed the boot process.
+ 
+
+<application
+   android:icon="@drawable/ic_launcher"
+   android:label="@string/app_name"
+   android:theme="@style/AppTheme" >
+   <receiver android:name="MyReceiver">  
+      <intent-filter>
+         <action android:name="android.intent.action.BOOT_COMPLETED">
+         </action>
+      </intent-filter>   
+   </receiver>
+</application>
+
+Apps can receive broadcasts in two ways: through 
+•	manifest-declared receivers (Broadcasting Custom Intents)
+•	context-registered receivers.
+
+1. Manifest-declared receivers (Broadcasting Custom Intents)
+If you want your application itself should generate and send custom intents then you will have to create and send those intents by using the sendBroadcast() method inside your activity class. If you use the sendStickyBroadcast(Intent) method, the Intent is sticky, meaning the Intent you are sending stays around after the broadcast is complete.
+
+public void broadcastIntent(View view) {
+   Intent intent = new Intent();
+   intent.setAction("com.tutorialspoint.CUSTOM_INTENT");
+   sendBroadcast(intent);
+}
+
+This intent com.tutorialspoint.CUSTOM_INTENT can also be registered in similar way as we have regsitered system generated intent.
+<application
+   android:icon="@drawable/ic_launcher"
+   android:label="@string/app_name"
+   android:theme="@style/AppTheme" >
+   <receiver android:name="MyReceiver">
+      <intent-filter>
+         <action android:name="com.tutorialspoint.CUSTOM_INTENT">
+         </action>
+      </intent-filter>
+   </receiver>
+</application>
+
+
+2. Context-registered receivers
+1. Create an instance of BroadcastReceiver.
+BroadcastReceiver br = new MyBroadcastReceiver();
+
+2. Create an IntentFilter and register the receiver by calling registerReceiver(BroadcastReceiver, IntentFilter):
+IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+this.registerReceiver(br, filter);
+
+Context-registered receivers receive broadcasts as long as their registering context is valid. For an example, if you register within an Activity context, you receive broadcasts as long as the activity is not destroyed. If you register with the Application context, you receive broadcasts as long as the app is running.
+
+3. To stop receiving broadcasts, call unregisterReceiver(android.content.BroadcastReceiver). Be sure to unregister the receiver when you no longer need it or the context is no longer valid.
+
+Be mindful of where you register and unregister the receiver, for example, if you register a receiver in onCreate(Bundle) using the activity's context, you should unregister it in onDestroy() to prevent leaking the receiver out of the activity context. If you register a receiver in onResume(), you should unregister it in onPause() to prevent registering it multiple times (If you don't want to receive broadcasts when paused, and this can cut down on unnecessary system overhead). Do not unregister in onSaveInstanceState(Bundle), because this isn't called if the user moves back in the history stack.
