@@ -1,0 +1,13 @@
+Multi-Threading In Android:
+Multi-Threading in Android is a unique feature through which more than one threads execute together without hindering the execution of other threads. Multi-Threading in Android is not different from conventional multi-Threading. 
+A class can be thought of as a process having its method as it’s sub-processes or threads. All these methods can run concurrently by using feature of Multi-Threading. In android, multi-Threading can be achieved through the use of many in-built classes. Out of them, Handler class is most commonly used.
+Handler class in Android:
+Handler class come from the Package android.os.Handler package and is most commonly used for multi-threading in android. Handler class provide sending and receiving feature for messages between different threads and handle the thread execution which is associated with that instance of Handler class.
+In android class, every thread is associated with an instance of Handler class and it allows the thread to run along with other threads and communicate with them through messages.
+Instantiating Handler class:
+There are following two ways in which Handler class is usually instantiated for supporting multi-threading:
+1. Through default constructor. 
+Handler handlerObject = new Handler();
+2. Through Parameterized constructor
+Handler handleObject = new Handler(Runnable runnableObject, Handler.Callback callbackObject);
+Read more: http://mrbool.com/how-to-implement-multi-threading-in-android-with-handler-class/28175#ixzz5Fpq7q44N
