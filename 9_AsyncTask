@@ -1,0 +1,84 @@
+What is AsyncTask
+AsyncTask is an abstract Android class which helps the Android applications to perform tasks without blocking the UI Thread. AsyncTask is designed to be a helper class around Thread and Handler.This class allows you to perform background operations and publish results on the UI thread without having to manipulate threads and/or handlers.
+Thread Pool Pattern
+•	AsyncTask uses a thread pool pattern for running the stuff from doInBackground()
+•	The Thread pool Pattern is where number of Threads are created to perform a number of Tasks. It is basically a container where multiple threads come in a queue for different task.
+Multiple AsyncTasks In Android
+In earlier version of Android (Donut and below), multiple AsyncTasks execution were not allowed. The pool size was just 1. But after Donut (1.6) it has been relaxed and now the size is 5, so at most 5 AsyncTasks can run simultaneously.
+Limitation Of AsyncTask
+There is a limit of how many tasks can be run simultaneously. Since AsyncTask uses a thread pool executor with max number of worker threads (128) and the delayed tasks queue has fixed size 10. If you try to execute more than 138 AsyncTasks the app will crash with java.util.concurrent.RejectedExecutionException.
+Delayed Queue Size
+•	AsyncTasks use a fixed size queue internally for storing delayed tasks. Queue size is 10 by default. 
+•	If you start 15 AsyncTasks in a row, then first 5 will enter their doInBackground(), but the rest will wait in a queue for a free worker thread. As soon as any of the first 5 AsyncTasks finishes, and thus releases a worker thread, a task from the queue will start execution.
+•	So in this case at most 5 tasks will run simultaneously. However if you start 16 your custom tasks in a row, then first 5 will enter their doInBackground(), the rest 10 will get into the queue, but for the 16th, a new worker thread will be created so it’ll start execution immediately. 
+•	So in this case at most 6 tasks will run simultaneously.
+
+Change Delayed Queue Size
+•	Starting from Android version 3.0, the API allows to use your custom thread pool executor via AsyncTask.executeOnExecutor(Executor exec, Params… params) method. 
+•	This allows to configure the size of the delayed tasks queue (Default size 10) . 
+•	Here you can give your own executor to execute custom number of thread means you can change the number of thread to execute in parallel. 
+•	There are some common application errors caused by parallel execution like InterruptedExecution and IllegalStateException so it is recommended to do not use multiple AsyncTask in parallel but, if you really have a need you can override Android’s default behaviour using AsyncTask.executeOnExecutor(Executor, Object[]), passing in a THREAD_POOL_EXECUTOR.     
+
+Criteria of using Multiple AsyncTask
+Before Donut (Till 1.6 Version)
+There was no concept of Multiple AsyncTask.
+After Donut and till Honeycomb (1.6 – 3.0)
+Here it uses multiple AsyncTask in parallel by default and you cannot customize it.
+After Honeycomb and till Jelly Bean (Version 3.0 – 4.3.1)
+private static final int CORE_POOL_SIZE = 5;
+private static final int MAXIMUM_POOL_SIZE = 128;
+private static final BlockingQueue<Runnable> sPoolWorkQueue = new LinkedBlockingQueue<Runnable>(10);
+
+From KitKat (4.4 Above):
+private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
+private static final int CORE_POOL_SIZE = CPU_COUNT + 1;
+private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
+private static final BlockingQueue<Runnable> sPoolWorkQueue = new LinkedBlockingQueue<Runnable>(128);
+
+The basic methods used in an android AsyncTask class are defined below :
+doInBackground() : This method contains the code which needs to be executed in background. In this method we can send results multiple times to the UI thread by publishProgress() method. To notify that the background processing has been completed we just need to use the return statements
+
+onPreExecute() : This method contains the code which is executed before the background processing starts
+
+onPostExecute() : This method is called after doInBackground method completes processing. Result from doInBackground is passed to this method
+
+onProgressUpdate() : This method receives progress updates from doInBackground method, which is published via publishProgress method, and this method can use this progress update to update the UI thread
+
+Usage
+AsyncTask must be subclassed to be used. The subclass will override at least one method (doInBackground(Params...)), and most often will override a second one (onPostExecute(Result)).
+
+The three generic types used in an android AsyncTask class are given below :
+Params : The type of the parameters sent to the task upon execution
+Progress : The type of the progress units published during the background computation
+Result : The type of the result of the background computati 
+Thread is an unit of execution who run "parallel" to the Main Thread is an important point, you can't update a UI component from the main thread here.
+
+AsyncTask
+is for a short Task because is tied to the host activity for example if you create a AsyncTask which is going to pull data from a server (DON'T DO THIS) when you rotate the phone and the activity is recreated again the AsyncTask will be recreated.
+
+Service
+solve the above problem because it live separate from the activity that invoke him so it can continue running even when the activity is destroyed, it run in the Main Thread(beware of ANR) use a background service (extend IntentService it create the worker thread automatically for you). Service is like an activity without UI, is good for long task
+
+Threading rules
+There are a few threading rules that must be followed for this class to work properly:
+•	The AsyncTask class must be loaded on the UI thread. This is done automatically as of Build.VERSION_CODES.JELLY_BEAN.
+•	The task instance must be created on the UI thread.
+•	execute(Params...) must be invoked on the UI thread.
+•	Do not call onPreExecute(), onPostExecute(Result), doInBackground(Params...), onProgressUpdate(Progress...) manually.
+•	The task can be executed only once (an exception will be thrown if a second execution is attempted.)
+
+Keys:-
+An AsyncTask has several parts that you can override: a doInBackground method that does, in fact, run on a separate thread, and three methods—onPreExecute, onProgressUpdate, and onPostExecute—that run on the UI thread. (The default implementation of these methods do nothing and onProgressUpdate only runs if you call publishProgress, usually from within doInBackground.) The purpose of onPostExecute is to publish results (such as updating the view hierarchy, or setting text in a text view) that must be done on the UI thread. It also can post progress updates. In order for this to all work properly, the AsyncTask must be created, and the execute method called, on the UI thread.
+You must not call UI actions from within doInBackground -- doing so will crash your application.
+
+AsyncTask
+AsyncTask is an easy to use Android class that allows you to do a task on a background thread and thus not disrupt the Main Thread. To use AsyncTask you should subclass it as we’ve done with FetchWeatherTask. There are four important methods to override:
+onPreExecute – This method is run on the UI before the task starts and is responsible for any setup that needs to be done.
+
+doInBackground – This is the code for the actual task you want done off the main thread. It will be run on a background thread and not disrupt the UI.
+
+onProgressUpdate – This is a method that is run on the UI thread and is meant for showing the progress of a task, such as animating a loading bar.
+
+onPostExecute – This is a method that is run on the UI after the task is finished.
+
+Note that when you start an AsyncTask, it is tied to the activity you start it in. When the activity is destroyed (which happens whenever the phone is rotated), the AsyncTask you started will refer to the destroyed activity and not the newly created activity. This is one of the reasons why using AsyncTask for a longer running task is dangerous.
