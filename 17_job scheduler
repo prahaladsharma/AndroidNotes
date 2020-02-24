@@ -1,0 +1,56 @@
+Android 8.0 has introduced new background execution limits that dramatically change how services work. When applications move into the background, any services they start will be granted several minutes to complete their work before the operating system terminates them. 
+What is JobScheduler?
+Android Lollipop introduced JobScheduler as a part of optimizing background behavior. This task required conditions and factors ( JobInfo) and the operation of the condition ( JobService) running in the background. It will be executed at the appropriate time by the Android framework.
+Just to note: These backgound execution limits do not affect Bound Services. If you declare a Bound Service, other components can bind to that service whether or not your app is in the foreground.
+IntentService is subject to these restrictions
+IntentService is a service, and is therefore subject to the new restrictions on background services. As a result, many apps that rely on IntentService do not work properly when targeting Android 8.0 or higher. For this reason, Android Support Library 26.0.0 introduces a new JobIntentService class, which provides the same functionality as IntentService but uses jobs instead of services when running on Android 8.0 or higher.
+Classes
+There are three important classes in the JobScheduler API:
+1. JobScheduler: A system service that will run jobs scheduled by apps.
+
+2. JobService: A class extended by applications and contains the code that runs as part of a job. The code for each job is contained in a class that extends the JobService class and requests the android.permission.BIND_JOB_SERVICE permission.
+
+3.JobInfo: Holds information about the job that the JobScheduler needs in order to run a JobService. The JobInfo will tell the JobScheduler which JobService type to use and which conditions must be met before the job can run. It also contains any parameters that the app must pass to the JobService. A JobInfo object is not directly instantiated, instead it is created by using a JobInfo.Builder.
+Methods
+A JobService sub-class must override two methods:
+OnStartJob: A system invokes when the job starts and runs on the main thread of the app.
+If the work is a small, easy task (less than 16 milliseconds), it will run on the main thread. Lengthy tasks such as disk access or network calls must run asynchronously. OnStartJob should return "true" if it is running work on another thread, while "false" should be returned if the all the work was performed within OnStartJob itself.
+OnStopJob: Called when the system has to prematurely terminate the job and provide the JobService a chance to perform any necessary cleanup. If the job should be rescheduled, it will return "true".
+JobIntentService:-
+ 
+Few Points regarding JobIntent Service
+•	On Android Oreo devices, it will handle the Wake Locks for you.
+•	On any device pre-Android Oreo, the JobIntentService will set up Wake Locks through the PowerManager, so make sure you require the WAKE_LOCK permission in your manifest.            									<uses-permission android:name=”android.permission.WAKE_LOCK” />
+•	When running on anything less than Android Oreo the service will start almost instantly. This ensures backwards compatibility with the same code. On Android Oreo, it will be subject to JobScheduler policies.
+•	On pre-Android Oreo, the service can run indefinitely but on Android Oreo, it will adhere to the usual JobService execution type limits.
+•	In Android O and later, jobs loaded through JobScheduler are executed sequentially. Internally, it is scheduled byjobInfo.setOverrideDeadline(0).build().
+ 
+ 
+How To create JobIntent Service
+1. Create a subclass of JobIntentService
+import android.support.v4.app.JobIntentService;
+public class MyJobIntentService extends JobIntentService {}
+2. Now override the onHandleWork() methods and expose enqueueWork() methods like below.
+private static final int JOB_ID = 1;
+public static void enqueueWork(Context context, Intent intent) {
+       enqueueWork(context, MyJobIntentService.class, JOB_ID, intent);
+}
+@Override
+protected void onHandleWork(@NonNull Intent intent) {
+   /**
+      Write code here.. Perform Long operation here such as Download/Upload of file,                
+      Sync Some data. The system or framework is already holding a wake lock for us at     
+      this point
+  */
+}
+
+3. Configuration in AndroidManifest.xml file
+	<uses-permission android:name="android.permission.WAKE_LOCK"/>
+
+4. Call from Activity/ Fragment/Receiver
+public void onStartJobIntentService() {
+       Intent mIntent = new Intent(this, MyJobIntentService.class);
+       MyJobIntentService.enqueueWork(this, mIntent);
+}
+
+
