@@ -1,0 +1,169 @@
+1. What is Reactive Programming
+Reactive Programming is basically event-based asynchronous programming. Everything you see is an asynchronous data stream, which can be 
+observed and an action will be taken place when it emits values. You can create data stream out of anything; variable changes, click e
+vents, http calls, data storage, errors and what not. When it says asynchronous, that means every code module runs on its own thread 
+thus executing multiple code blocks simultaneously.
+An advantage of asynchronous approach is, as every task runs on its own thread, all the task can start simultaneously and amount of 
+time takes complete all the tasks is equivalent to the longer task in the list. When it comes to mobile apps, as the tasks runs on 
+background thread, you can achieve seamless user experience without blocking main thread.
+•	A simple example (from Wikipedia) can be x = y + z; where the sum of y and z is assigned to x. In reactive programming, when the y
+value changes, the value of x will be updated automatically without re-executing the x = y + z statement. This can be achieved by 
+observing the value of y or z.
+•	An array list can be a data steam and an action can be taken when each item it emitted. May be you want to filter out the even numbers and ignoring the odd numbers. This can be done using usual loops and conditional statements, but in reactive programming you can achieve this in a completely different approach.
+
+2. Reactive Extensions
+Reactive Extensions (ReactiveX or RX) is a library that follows Reactive Programming principles i.e compose asynchronous and event based programs by using observable sequence. These libraries provides set of interfaces and methods which helps developers write clean and simpler code.
+Reactive Extensions are available in multiple languages C++ (RxCpp), C# (Rx.NET), Java (RxJava), Kotlin (RxKotlin), Swift (RxSwift) and lot more. We specifically interested in RxJava and RxAndroid as android is our focused area.
+
+3. What is RxJava
+RxJava is Java implementation of Reactive Extension (from Netflix). Basically it’s a library that composes asynchronous events by following Observer Pattern. You can create asynchronous data stream on any thread, transform the data and consumed it by an Observer on any thread. The library offers wide range of amazing operators like map, combine, merge, filter and lot more that can be applied onto data stream.
+You will understand more about operators and transformations when you start working on actual code examples.
+
+4. What is RxAndroid
+RxAndroid is specific to Android Platform with few added classes on top of RxJava. More specifically, Schedulers are introduced in RxAndroid (AndroidSchedulers.mainThread()) which plays major role in supporting multithreading concept in android applications. Schedulers basically decides the thread on which a particular code runs whether on background thread or main thread. Apart from it everything we use is from RxJava library only.
+Even through there are lot of Schedulers available, Schedulers.io() and AndroidSchedulers.mainThread() are extensively used in android programming. Below are the list of schedulers available and their brief introduction.
+•	Schedulers.io() – This is used to perform non CPU-intensive operations like making network calls, reading disc / files, database operations etc., This maintains pool of threads.
+•	AndroidSchedulers.mainThread() – This provides access to android Main Thread / UI Thread. Usually operations like updating UI, user interactions happens on this thread. We shouldn’t perform any intensive operations on this thread as it makes the app glitchy or ANR dialog can be thrown.
+•	Schedulers.newThread() – Using this, a new thread will be created each time a task is scheduled. It’s usually suggested not to use schedular unless there is a very long running operation. The threads created via newThread() won’t be reused.
+•	Schedulers.computation() – This schedular can be used to perform CPU-intensive operations like processing huge data, bitmap processing etc., The number of threads created using this scheduler completely depends on number CPU cores available.
+•	Schedulers.single() – This scheduler will execute all the tasks in sequential order they are added. This can be used when there is necessity of sequential execution is required.
+•	Schedulers.immediate() – This scheduler executes the the task immediately in synchronous way by blocking the main thread.
+•	Schedulers.trampoline() – It executes the tasks in First In – First Out manner. All the scheduled tasks will be executed one by one by limiting the number of background threads to one.
+•	Schedulers.from() – This allows us to create a scheduler from an executor by limiting number of threads to be created. When thread pool is occupied, tasks will be queued.
+
+5. RxJava Basics: Observable, Observer
+RxJava is all about two key components: Observable and Observer. In addition to these, there are other things like Schedulers, Operators and Subscription.
+Observable: Observable is a data stream that do some work and emits data.
+Observer: Observer is the counter part of Observable. It receives the data emitted by Observable.
+Subscription: The bonding between Observable and Observer is called as Subscription. There can be multiple Observers subscribed to a single Observable.
+Operator / Transformation: Operators modifies the data emitted by Observable before an observer receives them.
+Schedulers: Schedulers decides the thread on which Observable should emit the data and on which Observer should receives the data i.e background thread, main thread etc.,
+Example 4.1: Basic Observable, Observer
+import   android.support.v7.app.AppCompatActivity;
+import   android.os.Bundle;
+import   android.util.Log;
+import   info.androidhive.rxandroidexamples.R;
+import   io.reactivex.Observable;
+import   io.reactivex.Observer;
+import   io.reactivex.android.schedulers.AndroidSchedulers;
+import   io.reactivex.disposables.Disposable;
+import   io.reactivex.schedulers.Schedulers;
+
+public class Example1Activity extends AppCompatActivity {
+    /**
+     * Basic Observable, Observer, Subscriber example
+     * Observable emits list of animal names
+     */
+    private static final String TAG = Example1Activity.class.getSimpleName();
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_example1);
+
+        // observable
+        Observable<String> animalsObservable = getAnimalsObservable();
+        // observer
+        Observer<String> animalsObserver = getAnimalsObserver();
+
+        // observer subscribing to observable
+        animalsObservable
+                .observeOn(Schedulers.io())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe(animalsObserver);
+    }
+    private Observer<String> getAnimalsObserver() {
+        return new Observer<String>() {
+	@Override
+            public  void  onSubscribe(Disposable d) {
+                Log.d(TAG, "onSubscribe");
+            }
+            @Override
+            public  void  onNext(String s) {
+                Log.d(TAG, "Name: " + s);
+            }
+            @Override
+            public  void  onError(Throwable e) {
+                Log.e(TAG, "onError: " + e.getMessage());
+            }
+            @Override
+            public  void  onComplete() {
+                Log.d(TAG, "All items are emitted!");
+            }
+        };
+    }
+    private Observable<String> getAnimalsObservable() {
+        return Observable.just("Ant", "Bee", "Cat", "Dog", "Fox");
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+mTvShowSubscription = tvShowObservable
+    .subscribeOn(Schedulers.io())
+    .observeOn(AndroidSchedulers.mainThread())
+    .subscribe(new Observer<List<String>>() {
+        
+        @Override 
+        public void onCompleted() { }
+        
+        @Override 
+        public void onError(Throwable e) { }
+
+        @Override 
+        public void onNext(List<String> tvShows){
+            displayTvShows(tvShows);
+        }
+    });
+
+Let’s break this down one function at a animalsObservable. subscribeOn() essentially alters the Observable we created above. All of the code that this Observable would normally run, including the code the gets run upon subscription, will now run on a different thread. This means the logic in our Callable object, including the call to Log ,   will run on a different thread. But which thread will it run on?
+In this case we specify that the code is run on the “IO Scheduler” (Schedulers.io()). For now we can just think of a Scheduler as a separate thread for doing work. There’s actually a little more going on here but this description will suffice for our purposes.
+We’ve hit a bit of a snag now though. Since our Observable is set to run on the IO Scheduler, this means it’s going to interact with our Observer on the IO Scheduler as well. This is a problem because it means our onNext() method is going to get called on the IO Scheduler. But the code in our onNext() calls methods on some of our views. View methods can only be called on the UI thread.
+There’s a simple way to address this. We can tell RxJava that we want to observe this Observable on the UI thread, i.e. we want our onNext() callback to be called on the UI thread. We do this by specifying a different scheduler in the observeOn() method, namely the scheduler returned by AndroidSchedules.mainThread() (a scheduler for the UI thread).
+Last but not least we call subscribe(). This is critical since the code in our Callable won’t run until we actually subscribe something to it. Remember how I said Observables are primarily defined by their behavior upon subscription? This is a great example of that.
+When an Observer subscribes to an Observable a Subscription is created. A Subscription represents a connection between an Observer and an Observable. Sometimes we need to sever this connection.
+If you’ve ever done threading work on Android before you know there’s typically one huge problem: what happens if your thread finishes (or never finishes) it’s execution after an Activity has been torn down. This can cause a whole host of problems including memory leaks and NullPointerExceptions.
+Subscriptions allow us to deal with this problem. We can say “Hey, Observable, this Observer doesn’t want to receive your emissions anymore. Please disconnect from the Observer.” We do this by calling unsubscribe(). After calling unsubscribe(), the Observer we created above will no longer receive emissions and in doing so avoid all the problems associated with a thread completing it’s work (or not completing at all) after the Activity has been destroyed.
+We also wrap our unsubscribe in an if statement. We need make sure that: a) we’re not trying to unsubscribe something we never properly initialized (the null check), and b) that we didn’t somehow unsubscribe somewhere else (the isUnsubscribed() check). Neither of those cases are possible in our simple example, but the check is good code-hygiene regardless.
+Phew. Well there we go. If you’ve made it this far, you’re past the hard part. Let’s do a quick recap:
+•	Observable.fromCallable() allows us to delay the creation of a value to be emitted by an Observable. This is handy when the value you want to emit from your Observable needs to be created off of the UI thread.
+•	subscribeOn() allows us to run our value creation code on a specific thread, namely a thread that is not the UI thread.
+•	observeOn() allows us to then observe the emitted values of an Observable on an appropriate thread, namely the main UI thread.
+•	We should always unsubscribe our Observers in order to prevent nasty things from happening when we’re using Observables to load things asynchronously.
+
+Using Singles
+Observables are great, but in many cases they’re kind of overkill. For example, you’ll notice in the last two examples we only ever emitted a single value and never used the onCompleted() callback.
+As it turns out, there’s a simpler version of an Observable called a Single. Singles work almost exactly the same as Observables. But instead of there being an onCompleted(), onNext(), and onError(), there are only two callbacks: onSuccess() and onError().
+Example:-
+mTvShowSubscription = tvShowSingle
+    .subscribeOn(Schedulers.io())
+    .observeOn(AndroidSchedulers.mainThread())
+    .subscribe(new SingleSubscriber<List<String>>() {
+        
+        @Override 
+        public void onSuccess(List<String> tvShows) {
+            displayTvShows(tvShows); 
+        }
+
+        @Override 
+        public void onError(Throwable error) {
+            displayErrorMessage(); 
+        } 
+    });
+
+This should look pretty familiar. We’re calling subscribeOn() to make sure that our call to getFavoriteTvShows() is run off of the UI thread and we’re calling observeOn() to make sure that the result of the Single is emitted on the UI thread.
+Instead of using an Observer, we’re using a class called SingleSubscriber. It’s very similar to an Observer except that it just has the two methods we mentioned above: onSuccess() and onError(). A SingleSubscriber is to a Single what an Observer is to an Observable.
+One final note. We’ve actually added some error handling code in this example. So if our call to mRestClient throws an error, we’ll get the onError() callback. I encourage you to actually build and play around with this example in particular and see what happens when you use mRestClient.getFavoriteTvShowsWithException() instead of mRestClient.getFavoriteTvShows().
+5) Introducing Disposable
+Disposable: Disposable is used to dispose the subscription when an Observer no longer wants to listen to Observable. In android disposable are very useful in avoiding memory leaks.
+Let’s say you are making a long running network call and updating the UI. By the time network call completes its work, if the activity / fragment is already destroyed, as the Observer subscription is still alive, it tries to update already destroyed activity. In this case it can throw a memory leak. So using the Disposables, the un-subscription can be when the activity is destroyed.
+private Disposable disposable;
+@Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // don't send events once the activity is destroyed
+        disposable.dispose();
+    }
+
+6) CompositeDisposable.
+Consider a case where you have multiple Observables and Observers. Disposing them in Destroy one bye one is a tedious task and it can be error prone as you might forgot to dispose. In this case we can use CompositeDisposable.
+CompositeDisposable: Can maintain list of subscriptions in a pool and can dispose them all at once.
+Usually we call compositeDisposable.clear() in onDestroy() method, but you can call anywhere in the code.
+
