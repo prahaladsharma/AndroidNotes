@@ -1,0 +1,110 @@
+Services:-
+A Service is an application component that can perform long-running operations in the background, and it does not provide a user interface. Another application component can start a service, and it continues to run in the background even if the user switches to another application. Additionally, a component can bind to a service to interact with it and even perform interprocess communication (IPC). For example, a service can handle network transactions, play music, perform file I/O, or interact with a content provider, all from the background.
+1) Foreground
+A foreground service performs some operation that is noticeable to the user. For example, an audio app would use a foreground service to play an audio track. Foreground services must display a status bar icon. Foreground services continue running even when the user isn't interacting with the app.
+2) Background (started service)
+A background service performs an operation that isn't directly noticed by the user. For example, if an app used a service to compact its storage, that would usually be a background service.
+Note: If your app targets API level 26 or higher, the system imposes restrictions on running background services when the app itself is not in the foreground. In most cases like this, your app should use a scheduled job instead.
+3) Bound (bounded service)
+A service is bound when an application component binds to it by calling bindService(). A bound service offers a client-server interface that allows components to interact with the service, send requests, receive results, and even do so across processes with interprocess communication (IPC). A bound service runs only as long as another application component is bound to it. Multiple components can bind to the service at once, but when all of them unbind, the service is destroyed.
+
+Regardless of whether your application is started, bound, or both, any application component can use the service (even from a separate application) in the same way that any component can use an activity—by starting it with an Intent. However, you can declare the service as private in the manifest file and block access from other applications. This is discussed more in the section about Declaring the service in the manifest.
+Caution: A service runs in the main thread of its hosting process; the service does not create its own thread and does not run in a separate process unless you specify otherwise. If your service is going to perform any CPU-intensive work or blocking operations, such as MP3 playback or networking, you should create a new thread within the service to complete that work. By using a separate thread, you can reduce the risk of Application Not Responding (ANR) errors, and the application's main thread can remain dedicated to user interaction with your activities.
+The basics"-
+To create a service, you must create a subclass of Service,you must override some callback methods that handle key aspects of the service lifecycle and provide a mechanism that allows the components to bind to the service, if appropriate. 
+onStartCommand()
+The system invokes this method by calling startService() when another component (such as an activity) requests that the service be started. When this method executes, the service is started and can run in the background indefinitely. If you implement this, it is your responsibility to stop the service when its work is complete by calling stopSelf() or stopService(). If you only want to provide binding, you don't need to implement this method.
+onBind()
+The system invokes this method by calling bindService() when another component wants to bind with the service (such as to perform RPC). In your implementation of this method, you must provide an interface that clients use to communicate with the service by returning an IBinder. You must always implement this method; however, if you don't want to allow binding, you should return null.
+onCreate()
+The system invokes this method to perform one-time setup procedures when the service is initially created (before it calls either onStartCommand() or onBind()). If the service is already running, this method is not called.
+onDestroy()
+The system invokes this method when the service is no longer used and is being destroyed. Your service should implement this to clean up any resources such as threads, registered listeners, or receivers. This is the last call that the service receives.
+The Android system force-stops a service only when memory is low and it must recover system resources for the activity that has user focus. If the service is bound to an activity that has user focus, it's less likely to be killed; if the service is declared to run in the foreground, it's rarely killed. If the service is started and is long-running, the system lowers its position in the list of background tasks over time, and the service becomes highly susceptible to killing—if your service is started, you must design it to gracefully handle restarts by the system. If the system kills your service, it restarts it as soon as resources become available, but this also depends on the value that you return from onStartCommand(). 
+Declaring a service in the manifest
+To declare your service, add a <service> element as a child of the <application> element. Here is an example:
+<manifest ... >
+  <application ... >
+      <service android:name=".ExampleService" />
+  </application>
+</manifest>
+1) Creating a started service
+Caution: A service runs in the same process as the application in which it is declared and in the main thread of that application by default. If your service performs intensive or blocking operations while the user interacts with an activity from the same application, the service slows down activity performance. To avoid impacting application performance, start a new thread inside the service.
+Traditionally, there are two classes you can extend to create a started service:
+Service
+This is the base class for all services. When you extend this class, it's important to create a new thread in which the service can complete all of its work; the service uses your application's main thread by default, which can slow the performance of any activity that your application is running.
+IntentService
+This is a subclass of Service that uses a worker thread to handle all of the start requests, one at a time. This is the best option if you don't require that your service handle multiple requests simultaneously. Implement onHandleIntent(), which receives the intent for each start request so that you can complete the background work.
+The following sections describe how you can implement your service using either one for these classes.
+1) Extending the IntentService class:-
+Because most of the started services don't need to handle multiple requests simultaneously (which can actually be a dangerous multi-threading scenario), it's best that you implement your service using the IntentService class.
+The IntentService class does the following:
+It creates a default worker thread that executes all of the intents that are delivered to onStartCommand(), separate from your application's main thread.
+•	Creates a work queue that passes one intent at a time to your onHandleIntent() implementation, so you never have to worry about multi-threading.
+•	Stops the service after all of the start requests are handled, so you never have to call stopSelf().
+•	Provides a default implementation of onBind() that returns null.
+•	Provides a default implementation of onStartCommand() that sends the intent to the work queue and then to your onHandleIntent() implementation.
+•	To complete the work that is provided by the client, implement onHandleIntent(). However, you also need to provide a small constructor for the service.
+ 
+2) Extending the Service class
+Using IntentService makes your implementation of a started service very simple. If, however, you require your service to perform multi-threading (instead of processing start requests through a work queue), you can extend the Service class to handle each intent.
+For comparison, the following example code shows an implementation of the Service class that performs the same work as the previous example using IntentService. That is, for each start request, it uses a worker thread to perform the job and processes only one request at a time.
+********************************************************************************
+public class BgServiceInterval extends Service {
+    @Override
+    public IBinder onBind(Intent intent) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d("ClearFromRecentService", "Service Started");
+        return START_STICKY;
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+}
+********************************************************************************
+START_NOT_STICKY
+If the system kills the service after onStartCommand() returns, do not recreate the service unless there are pending intents to deliver. This is the safest option to avoid running your service when not necessary and when your application can simply restart any unfinished jobs.
+START_STICKY
+If the system kills the service after onStartCommand() returns, recreate the service and call onStartCommand(), but do not redeliver the last intent. Instead, the system calls onStartCommand() with a null intent unless there are pending intents to start the service. In that case, those intents are delivered. This is suitable for media players (or similar services) that are not executing commands but are running indefinitely and waiting for a job.
+START_REDELIVER_INTENT
+If the system kills the service after onStartCommand() returns, recreate the service and call onStartCommand() with the last intent that was delivered to the service. Any pending intents are delivered in turn. This is suitable for services that are actively performing a job that should be immediately resumed, such as downloading a file.
+3) Creating a bound service
+•	A bound service is an implementation of the Service class that allows other applications to bind to it and interact with it. 
+•	To provide binding for a service, you must implement the onBind() callback method. This method returns an IBinder object that defines the programming interface that clients can use to interact with the service.
+•	A client binds to a service by calling bindService(). When it does, it must provide an implementation of ServiceConnection, which monitors the connection with the service. 
+•	The return value of bindService() indicates whether the requested service exists and whether the client is permitted access to it. 
+•	When the Android system creates the connection between the client and service, it calls onServiceConnected() on the ServiceConnection. The onServiceConnected() method includes an IBinder argument, which the client then uses to communicate with the bound service.
+•	You can connect multiple clients to a service simultaneously. However, the system caches the IBinder service communication channel. In other words, the system calls the service's onBind() method to generate the IBinder only when the first client binds. The system then delivers that same IBinder to all additional clients that bind to that same service, without calling onBind() again.
+•	When the last client unbinds from the service, the system destroys the service, unless the service was also started by startService().
+•	The most important part of your bound service implementation is defining the interface that your onBind() callback method returns. The following section discusses several different ways that you can define your service's IBinder interface.
+Creating a bound service
+When creating a service that provides binding, you must provide an IBinder that provides the programming interface that clients can use to interact with the service. There are three ways you can define the interface:
+3.1) Extending the Binder class
+•	If your service is private to your own application and runs in the same process as the client (which is common), you should create your interface by extending the Binder class and returning an instance of it from onBind(). 
+•	The client receives the Binder and can use it to directly access public methods available in either the Binder implementation or the Service.
+•	This is the preferred technique when your service is merely a background worker for your own application. The only reason you would not create your interface this way is because your service is used by other applications or across separate processes.
+3.2)Using a Messenger
+•	If you need your interface to work across different processes, you can create an interface for the service with a Messenger.
+•	 In this manner, the service defines a Handler that responds to different types of Message objects. 
+•	This Handler is the basis for a Messenger that can then share an IBinder with the client, allowing the client to send commands to the service using Message objects.
+•	Additionally, the client can define a Messenger of its own, so the service can send messages back.
+•	This is the simplest way to perform interprocess communication (IPC), because the Messenger queues all requests into a single thread so that you don't have to design your service to be thread-safe.
+3.3)Using AIDL
+•	Android Interface Definition Language (AIDL) decomposes objects into primitives that the operating system can understand and marshals them across processes to perform IPC.
+•	 The previous technique, using a Messenger, is actually based on AIDL as its underlying structure. As mentioned above, the Messenger creates a queue of all the client requests in a single thread, so the service receives requests one at a time.
+•	 If, however, you want your service to handle multiple requests simultaneously, then you can use AIDL directly. In this case, your service must be thread-safe and capable of multi-threading.
+•	To use AIDL directly, you must create an .aidl file that defines the programming interface.
+•	 The Android SDK tools use this file to generate an abstract class that implements the interface and handles IPC, which you can then extend within your service.
+ 
+Difference between an IntentService and a Service
+1.	Service class uses the application's main thread, while IntentService creates a worker thread and uses that thread to run the service.
+2.	IntentService creates a queue that passes one intent at a time to onHandleIntent(). Thus, implementing a multi-thread should be made by extending Service class directly. Service class needs a manual stop using stopSelf(). Meanwhile, IntentService automatically stops itself when it finishes execution.
+3.	IntentService implements onBind() that returns null. This means that the IntentService can not be bound by default.
+4.	IntentService implements onStartCommand() that sends Intent to queue and to onHandleIntent().
+
+Background Service getting killed in android
+if you are implementing the service, override onStartCommand() and return START_STICKY as the result. It will tell the system that even if it will want to kill your service due to low memory, it should re-create it as soon as memory will be back to normal.
