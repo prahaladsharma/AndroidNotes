@@ -1,0 +1,41 @@
+How to Secure an Android App
+1. Use Internal Storage for Sensitive Data
+Every Android app has an internal storage directory associated with it whose path is based on the package name of the app. Files inside this directory are very secure because they use the MODE_PRIVATE file creation mode by default. This means the files cannot be accessed by any other app on the device. Therefore, it is a best place to store all the sensitive data of your app in the internal storage directory.
+To determine the absolute path of your app's internal storage directory, it is recommended that you use the getFilesDir() method. Once you know its path, referencing files inside it is as simple as referencing files inside any other directory. For example, here's how you could reference a file called myfile.dat in the internal storage directory of your app:
+File myFile = new File(getFilesDir(), "myfile.dat");
+2. Encrypt Data on External Storage
+The internal storage capacity of an Android device is often limited. Therefore, at times, you might have no choice but to store sensitive data on external storage media, such as a removable SD card.
+Because data on external storage media can be directly accessed by both users and other apps on the device, it is important that you store it in an encrypted format. One of the most popular encryption algorithms used by developers today is AES, short for Advanced Encryption Standard, with a key size of 256 bits.
+Writing code to encrypt and decrypt your app's data using the javax.crypto package, which is included in the Android SDK, can be confusing. Therefore, most developers prefer using third party libraries, such as Facebook's Conceal library, which are usually much easier to work with.
+3. Use Intents for IPC
+Experienced programmers who are new to Android application development often try to use sockets, named pipes, or shared files to asynchronously communicate with other apps installed on an Android device. These approaches are not only hard and inelegant, but also prone to threats. An easier and more secure approach to interprocess communication on the Android operating system is to use intents.
+To send data to a specific component of an app, you must create a new instance of the Intent class and use its setComponent() method to specify both the package name of the app and the name of the component. You can then add data to it using the putExtra() method.
+For example, here's how you could send the string Hello World to an Activity called MyActivity, which belongs to an app whose package name is my.other.app:
+// Create an intent
+Intent intent = new Intent();
+ 
+// Specify the component name
+intent.setComponent(new ComponentName("my.other.app","my.other.app.MyActivity"));
+ 
+// Add data
+intent.putExtra("DATA", "Hello World!");
+ 
+// Send the intent to the activity
+startActivity(intent);
+
+4. Use HTTPS
+All communications between your app and your servers must be over an HTTPS connection, preferably using the HttpsURLConnection class. If you think using HTTP for data that is not confidential is fine, think again.
+Many Android users connect to several open Wi-Fi hotspots in public areas every day. Some of those hotspots could be malicious. A malicious hotspot can easily alter the contents of HTTP traffic to make your app behave in an unexpected manner, or worse still, inject ads or exploits into it.
+By using HTTPS, as long as the server is configured with a certificate issued by a trusted certificate authority, such as DigiCert or GlobalSign, you can be sure that your network traffic is secure against both eavesdropping and man-in-the-middle attacks.
+If your app has a lot of networking code and you are afraid that you might unwittingly be sending some data as cleartext, you should consider using nogotofail, an open source tool built by Google to find such mistakes.
+
+5. Use ProGuard Before Publishing
+Security measures built into an Android app can be severely compromised if attackers are able to get their hands on the source code. Before you publish your app, it is recommended to make use of a tool called ProGuard, which is included in the Android SDK, to obfuscate and minify source code.
+Android Studio automatically includes ProGuard in the build process if the buildType is set to release. The default ProGuard configuration available in the Android SDK's proguard-android.txt file is sufficient for most apps. If you want to add custom rules to the configuration, you can do so inside a file named proguard-rules.pro, which is a part of every Android Studio project.
+
+Facebook Conceal:-(https://github.com/facebook/conceal)
+Conceal provides a set of Java APIs to perform cryptography on Android. It was designed to be able to encrypt large files on disk in a fast and memory efficient manner.
+
+The major target for this project is typical Android devices which run old Android versions, have low memory and slower processors.
+
+Unlike other libraries, which provide a Smorgasbord of encryption algorithms and options, Conceal prefers to abstract this choice and use sane defaults. Thus Conceal is not a general purpose crypto library, however it aims to provide useful functionality.
