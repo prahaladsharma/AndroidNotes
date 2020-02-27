@@ -1,0 +1,61 @@
+Retrofit vs Volley
+1) Uses /Code complexity:
+Both Retrofit and Volley are easy to use and provides the feature to make network calls both synchronously and asynchronously.
+If we talk about the request and response handling than Retrofit treats the Api calls as simple java method calls and it also handle
+the Json/Xml parsing itself, while with Volley we have to do some extra code to achieve the same for parsing(need to create a custom 
+request).
+
+2) Inbuilt Types :
+The data returned by an Api plays vital role in implementation of network call and its handling.It is one of the important parameter
+to decide which option we should use.
+Volley can capture four types of responses automatically through these requests:
+2.1) StringRequest – This type of request converts the response into a String.
+2.2) JsonObjectRequest – This type of request and response is automatically converted into a JsonObject                                                                                       
+2.3) JsonArrayRequest – This type of request and response is automatically converted into a JSONArray.
+2.4) ImageRequest – This type of request converts the response into a decoded bitmap.
+
+Retrofit can parse many other types of responses automatically like:
+2.1) Boolean – Web API response needs to be a boolean.
+2.2) Integer – Web API response needs to be an integer.
+2.3) String – Web API response needs to be in String format.
+2.4) Date– Web API response should be Long format date.
+2.5) Object – Web API response needs to be in Json object.
+2.6) Collections – Web API response needs to be in a String Format.
+
+
+3) Image Loading:
+Volley has an inbuilt support for image loading.It is packaged with a loader a custom view called NetworkImageView which is specially 
+designed to download and show images.On the other hand Retrofit does not provide any such feature, Other libraries such as picasso or
+glide is recommended to perform image loading.
+
+4) Caching:
+Android volley has a very elaborate and flexible caching mechanism.When a request is made through volley first the cache is checked for 
+appropriate response if it is found there than it is returned and parsed else network hit is made.Retrofit does not support caching.
+
+5) Retrying Mechanism:
+One of the great things about volley is that it supports retries on request timeout. While creating requests with volley, we can set a 
+retry policy by using setRetryPolicy method. By default a volley request timeout time is set to 5 seconds. But if you wish to change
+the policy, it supports that too. You can specify these parameters according to your needs:
+ A) Timeout    B) Number Of Retries   C) Back Off Multiplier
+Retrofit does not support any retrying mechanism.But it can be achieved manually by doing some extra code.
+
+6) Request Cancellation:
+Both Volley and Retrofit supports request cancellation.
+
+7) Post Requests and Multipart uploads:
+Volley supports both post requests and multipart uploads but for post requests we have to convert our java objects to JSONObject.
+Also for multipart uploads we have to do some extra code and use some additional classes.
+On the other hand Retrofit has full support for Post Requests and Multipart uploads.
+
+8) Request Execution:
+One of the most important factors effecting the code complexity is, how a request is executed in your code. In background or in 
+foreground? As you may know that Android OS does not allow the network interaction on main thread, it throws a 
+NetworkOnMainThreadException. To avoid this you may need to do all the network processing in background. 
+As a matter of fact both Android Volley and Retrofit support the background requests. Also both of them are designed in a way,
+that you may not have to write huge amounts of code to perform such requests. Although if you wish to do a request in foreground,
+even that it possible in both. As there are situations when you may want to block user from going further ahead in your app until a 
+response is captured from web API.
+•	No automatic parsing in volley
+•	Automatic JSON parsing in retrofit
+•	Retrofit handles request and response like simple java method calls whereas Volley has to add extra code to achieve the same.
+   
