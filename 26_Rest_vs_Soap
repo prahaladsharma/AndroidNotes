@@ -1,0 +1,14 @@
+Simple Object Access Protocol (SOAP)   -- VS --    Representational State Transfer (RESTful)
+•	REST stands for Representational State Transfer where as SOAP stands for Simple Object Access Protocol.
+
+•	SOAP defines its own security where as REST inherits security from underlying transport.
+
+•	SOAP does not support error handling but REST has built-in error handling.
+
+•	REST is lightweight and does not require XML parsing. REST can be consumed by any client, even a web browser with Ajax and Javascript.
+  REST consumes less bandwidth, it does not require a SOAP header for every message.
+  
+•	REST is useful over any protocol which provide a URI. Ignore point 5 for REST as mentioned below in the picture.
+ 
+
+
