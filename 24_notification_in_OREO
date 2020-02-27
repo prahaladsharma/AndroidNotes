@@ -1,0 +1,27 @@
+Notification in Android 8.0(oreo): 
+•	Android 8.0 Oreo comes with notification Dots. With Notification Dots, whenever you have any notification to be checked, you will see
+a dot on the icon of that particular app which is having the unchecked notification. 
+
+•	With OREO we can separate your app’s notifications into notification channels. 
+
+•	All notifications that are posted to the same channel have the same behaviour, for example we could create a channel for our app’s most 
+urgent notifications, where each notification is announced with an alert sound, vibration and a notification light, and then create 
+“quieter” channels for the rest of your app’s notifications. 
+
+•	Android Oreo also gives users more control over notifications than ever before, as in Android 8.0 users can modify the settings for 
+any notification channel that’s present on their device.
+
+•	In OREO, they have redesigned notifications to provide an easier and more consistent way to manage notification behavior and settings. 
+Some of these changes include:
+
+Notification channels: Android 8.0 introduces notification channels that allow you to create a user-customizable channel for each type 
+of notification you want to display.
+
+Notification dots: Android 8.0 introduces support for displaying dots, or badges, on app launcher icons. Notification dots reflect the 
+presence of notifications that the user has not yet dismissed or acted on.
+
+Snoozing: Users can snooze notifications, which causes them to disappear for a period of time before reappearing. Notifications reappear
+with the same level of importance they first appeared with.
+
+Messaging style: In Android 8.0, notifications that use the MessagingStyle class display more content in their collapsed form. 
+You should use theMessagingStyle class for notifications that are messaging-related.
